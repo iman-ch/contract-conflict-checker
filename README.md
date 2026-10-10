@@ -1,4 +1,5 @@
 # Contract Conflict Checker
+**Model:** [Hugging Face](https://huggingface.co/imanxch/distilbert-contractnli) · **Demo:** coming soon
 
 Compare an incoming contract against your standard terms, and flag conflicts on payment terms, liability caps, termination notice, and IP ownership. For small businesses and freelancers who sign vendor and client contracts without a lawyer.
 
@@ -22,7 +23,7 @@ The final pipeline will*
 1. split both contracts into clauses
 2. label each clause type (payment, liability, termination, IP)
 3. match clauses of the same type across two contracts
-4. check each pair: fine-tuned NLI model for wording contracts, plus rules for numbers (day, dollar amount)
+4. check each pair: fine-tuned NLI model for wording conflicts, plus rules for numbers (day, dollar amount)
 5. output a plain English conflict report
 
 ## Results so far
@@ -46,13 +47,25 @@ Training was optimized (dynamic padding, mixed precision), and controlled experi
 - Longer sequences added nothing: few MultiNLI pairs exceed 128 tokens.
 - The optimized pipeline is about 4–5× faster: the 20K run dropped from ~10 to 2.2 minutes with matching accuracy.
 
-### Notebook 3: Contract NLI Adaption
-*in progress*
+### Notebook 3: Contract NLI Adaptation
+The best general model was tested on ContractNLI (real NDAs) before and after fine-tuning on contract language.
+
+| Model | Test accuracy | F1 entailment | F1 neutral | F1 contradiction |
+| --- | --- | --- | --- | --- |
+| General model (zero-shot) | 40.5% | 0.454 | 0.428 | 0.271 |
+| **Fine-tuned on ContractNLI** | **82.4%** | **0.837** | **0.826** | **0.760** |
+
+*Findings:*
+- Fine-tuning doubled accuracy and almost tripled contradiction F1.
+- The general model over-flagged contradictions: contract hypotheses often contain negations ("shall not…"), a shortcut it had learned from MultiNLI.
+- Class weights were tested for the imbalanced data (contradiction is 12% of pairs) but didn't improve contradiction F1, so the simpler model was kept.
+
+**Model:** [imanxch/distilbert-contractnli on Hugging Face](https://huggingface.co/imanxch/distilbert-contractnli)
 
 ## Roadmap
 - [x] **Notebook 1:** baseline model with a hand-written training loop
 - [x] **Notebook 2:** optimized training and tracked experiments
-- [ ] **Notebook 3:** adapt the model to contract language (ContractNLI), before/after comparison
+- [x] **Notebook 3:** adapt the model to contract language (ContractNLI), before/after comparison
 - [ ] **Notebook 4:** error analysis: where and why the model fails on contracts
 - [ ] **Notebook 5:** clause-by-clause contract comparison pipeline, evaluated on contract pairs with planted conflicts
 - [ ] **Web app:** Gradio demo on Hugging Face Spaces
@@ -66,7 +79,7 @@ Training was optimized (dynamic padding, mixed precision), and controlled experi
 - Planned deployment: Gradio, Hugging Face Spaces
 
 ## How to Run
-Notebooks run top-to-bottom in Colab with a GPU runtime (Runtime → Change runtime type → T4 GPU). Models and MLflow logs are saved to Google Drive *pending upload*.
+Notebooks run top-to-bottom in Colab with a GPU runtime (Runtime → Change runtime type → T4 GPU). Intermediate models and MLflow logs are saved to Google Drive; update `PROJ_DIR` in each setup cell to your own folder. The final model is published on [Hugging Face](https://huggingface.co/imanxch/distilbert-contractnli).
 
 ## LIMITATIONS
 - This will not output legal advice. It will flag potential conflicts for further review, **not replace a lawyer**.
