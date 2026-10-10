@@ -14,7 +14,7 @@ This tool is built in layers:
 ```
 Pretrained language model (DistilBERT)
   -> learns general contradiction (MultiNLI)      <- Notebooks 1–2 (DONE)
-  -> adapts to contract language (ContractNLI)    <- Notebook 3
+  -> adapts to contract language (ContractNLI)    <- Notebook 3 (DONE)
   -> analyzed for weak spots                      <- Notebook 4
   -> wrapped in a pipeline*                       <- Notebook 5
   -> deployed as a web app                        <- Planned
