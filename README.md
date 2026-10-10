@@ -1,0 +1,2 @@
+# contract-conflict-checker
+
